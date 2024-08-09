@@ -1,4 +1,1 @@
 streamlit
-yfinance
-plot_plotly
-
