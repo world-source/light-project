@@ -1,6 +1,6 @@
 streamlit
 yfinance
 Prophet
-prophet.plot
+datetime
 plotly
 
