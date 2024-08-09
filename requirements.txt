@@ -1,7 +1,6 @@
 streamlit
 yfinance
-fbprophet
-Prophet
+prophet-1.1.5-py3-none-win_amd64.whl 
 datetime
 plotly
 
