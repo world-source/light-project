@@ -1,4 +1,6 @@
 streamlit
 yfinance
 Prophet
+prophet.plot
 plotly
+
