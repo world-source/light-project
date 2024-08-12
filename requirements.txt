@@ -4,4 +4,4 @@ numpy<2
 prophet == 1.1.2
 datetime
 plotly
-
+holidays==0.24
