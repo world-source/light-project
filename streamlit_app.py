@@ -1,14 +1,16 @@
 import streamlit as st 
 from datetime import date
-import yfinance as yf 
 import numpy as np
+np.float_ = np.float64
+import yfinance as yf 
 from prophet import Prophet
 from prophet.plot import plot_plotly
 from plotly import graph_objs as go
+import warnings
+warnings.simplefilter("ignore", category=FutureWarning)
 
-np.float_ = np.float64
 
-
+import streamlit.web.bootstrap
 
 
 START = "2015-01-01"
