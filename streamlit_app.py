@@ -59,8 +59,6 @@ def plot_raw_data():
 	st.plotly_chart(fig)
 	
 
-
-col1, col2 = st.columns(2)
 chart_data = pd.DataFrame(
     {
         "col1": np.random.randn(20),
@@ -69,9 +67,11 @@ chart_data = pd.DataFrame(
     }
 )
 
+col1, col2 = st.columns(2)
+
 
 with col1:
-    
+    st.write(data.tail())
 
 with col2:
     st.write(data.tail())
