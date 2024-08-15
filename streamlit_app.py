@@ -48,8 +48,15 @@ data = load_data(selected_stock)
 data_load_state.text('Loading data... done!')
 
 st.subheader('Raw data')
-st.write(data.tail())
-st.write(data.tail())
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.write(data.tail())
+
+with col2:
+    st.write(data.tail())
+
 
 # Plot raw data
 def plot_raw_data():
