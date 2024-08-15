@@ -83,12 +83,11 @@ st.subheader('Forecast data')
 
 st.write(f'Forecast plot for {n_years} years')
 fig1 = plot_plotly(m, forecast)
-st.plotly_chart(fig1)
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.write(forecast.tail())
+    st.plotly_chart(fig1)
 
 with col2:
     st.plotly_chart(fig1)
