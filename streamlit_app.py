@@ -48,15 +48,7 @@ data = load_data(selected_stock)
 data_load_state.text('Loading data... done!')
 
 st.subheader('Raw data')
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.write(data.tail())
-
-with col2:
-    st.write(data.tail())
-
+st.write(data.tail())
 
 # Plot raw data
 def plot_raw_data():
@@ -79,19 +71,11 @@ forecast = m.predict(future)
 
 # Show and plot forecast
 st.subheader('Forecast data')
-
-
+st.write(forecast.tail())
+    
 st.write(f'Forecast plot for {n_years} years')
 fig1 = plot_plotly(m, forecast)
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.plotly_chart(fig1)
-
-with col2:
-    st.plotly_chart(fig1)
-
+st.plotly_chart(fig1)
 
 st.write("Forecast components")
 fig2 = m.plot_components(forecast)
