@@ -79,13 +79,22 @@ forecast = m.predict(future)
 
 # Show and plot forecast
 st.subheader('Forecast data')
-st.write(forecast.tail())
+
+
+col3, col4 = st.columns(2)
+
+with col3:
+    st.write(forecast.tail())
+
+with col4:
+    st.plotly_chart(fig1)
+
 
     
 st.write(f'Forecast plot for {n_years} years')
 fig1 = plot_plotly(m, forecast)
 st.plotly_chart(fig1)
-st.plotly_chart(fig1)
+
 
 st.write("Forecast components")
 fig2 = m.plot_components(forecast)
