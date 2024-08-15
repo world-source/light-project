@@ -27,7 +27,7 @@ st.set_page_config(
 START = "2015-01-01"
 TODAY = date.today().strftime("%Y-%m-%d")
 
-st.markdown("<h1 style='text-align: center; color: red;'>Stock Prediction App</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: black;'>Stock Prediction App</h1>", unsafe_allow_html=True)
 
 
 stocks = ('GOOG', 'AAPL', 'MSFT', 'GME', 'TSLA', 'NVDA', 'INTC', 'AMZN', 'EBAY', 'AAL', 'AMD', 'NFLX', 'PEP', 'ADBE', 'META', 'TXN', 'ABNB', 'PYPL', 'LYFT')
