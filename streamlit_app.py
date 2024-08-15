@@ -71,7 +71,7 @@ chart_data = pd.DataFrame(
 
 
 with col1:
-    plot_raw_data()
+    
 
 with col2:
     st.write(data.tail())
