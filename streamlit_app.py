@@ -48,7 +48,7 @@ data = load_data(selected_stock)
 data_load_state.text('Loading data... done!')
 
 st.subheader('Raw data')
-
+st.write(data.tail())
 
 # Plot raw data
 def plot_raw_data():
@@ -58,24 +58,7 @@ def plot_raw_data():
 	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
 	st.plotly_chart(fig)
 	
-
-chart_data = pd.DataFrame(
-    {
-        "col1": np.random.randn(20),
-        "col2": np.random.randn(20),
-        "col3": np.random.choice(["A", "B", "C"], 20),
-    }
-)
-
-col1, col2 = st.columns(2)
-
-
-with col1:
-    st.write(data.tail())
-
-with col2:
-    st.write(data.tail())
-
+plot_raw_data()
 
 # Predict forecast with Prophet.
 df_train = data[['Date','Close']]
@@ -97,5 +80,3 @@ st.plotly_chart(fig1)
 st.write("Forecast components")
 fig2 = m.plot_components(forecast)
 st.write(fig2)
-
-
