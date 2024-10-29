@@ -65,9 +65,11 @@ if 'Close' not in df_train.columns:
 # Rename columns and clean data
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
 
-# Check what df_train looks like after renaming
+# Display the structure and data types of df_train
 st.write("DataFrame after renaming columns:")
 st.write(df_train)
+st.write("Data types of each column:")
+st.write(df_train.dtypes)
 
 # Check if 'ds' and 'y' columns exist after renaming
 if 'ds' not in df_train.columns or 'y' not in df_train.columns:
@@ -82,8 +84,8 @@ if not isinstance(df_train['y'], pd.Series):
 # Convert 'y' to numeric values, coercing errors
 df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
 
-# Check for NaN values in 'y'
-st.write("Number of NaN values in 'y':", df_train['y'].isna().sum())
+# Display the number of NaN values in 'y' after conversion
+st.write("Number of NaN values in 'y' after conversion:", df_train['y'].isna().sum())
 
 # Drop rows with NaN values in 'y'
 df_train = df_train.dropna(subset=['y'])
@@ -93,8 +95,10 @@ if df_train.shape[0] < 2:
     st.error("Error: Not enough valid rows after cleaning the data.")
     st.stop()
 
-# Print columns of df_train for verification
+# Print columns and shape of df_train for verification
 st.write("Columns in training data:", df_train.columns)
+st.write("Shape of training data:", df_train.shape)
+
 m = Prophet()
 m.fit(df_train)
 future = m.make_future_dataframe(periods=period)
