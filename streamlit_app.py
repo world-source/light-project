@@ -1,11 +1,10 @@
 import streamlit as st 
 from datetime import date
 import numpy as np
-import pandas as pd  # Ensure you import pandas
+import pandas as pd  
 import yfinance as yf 
 from prophet import Prophet
 from prophet.plot import plot_plotly
-from plotly import graph_objs as go
 import warnings
 warnings.simplefilter("ignore", category=FutureWarning)
 
@@ -40,14 +39,17 @@ data_load_state = st.text('Loading data...')
 data = load_data(selected_stock)
 data_load_state.text('Loading data... done!')
 
-# Convert the Date column to a timezone-naive format and ensure it is in datetime format without timezone
-data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None).dt.floor('S')
+# Convert the Date column to a timezone-naive format
+data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)
 
 st.subheader('Raw data')
 st.write(data.tail())
 
 # Prepare the training DataFrame for Prophet
 df_train = data[['Date', 'Close']].rename(columns={"Date": "ds", "Close": "y"})
+
+# Convert the 'ds' column to string to ensure compatibility
+df_train['ds'] = df_train['ds'].dt.strftime('%Y-%m-%d')
 
 # Check DataFrame structure
 st.write("DataFrame before conversion:")
