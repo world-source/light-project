@@ -52,26 +52,27 @@ df_train = data[['Date', 'Close']]
 # Rename columns
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
 
-# Check DataFrame structure
-st.write("DataFrame before conversion:")
+# Check DataFrame structure after renaming
+st.write("DataFrame after renaming columns:")
 st.write(df_train)
-st.write("DataFrame dtypes:")
+
+# Check types of the DataFrame
+st.write("DataFrame dtypes after renaming:")
 st.write(df_train.dtypes)
 
-# Check if 'y' column is present and check its type
+# Check if 'y' column is present
 if 'y' not in df_train.columns:
     st.error("Error: 'y' column is missing from the DataFrame.")
     st.stop()
 
-# Inspect 'y' column before conversion
-st.write("Contents of 'y' before conversion:")
-st.write(df_train['y'].head())
-st.write("Type of 'y':", type(df_train['y']))
-
-# Check if 'y' is a Series
-if isinstance(df_train['y'], pd.Series):
+# Inspect 'y' column to ensure it's a Series
+y_column = df_train['y']
+if isinstance(y_column, pd.Series):
     # Check the unique values in 'y'
-    st.write("Unique values in 'y':", df_train['y'].unique())
+    st.write("Contents of 'y' before conversion:")
+    st.write(y_column.head())
+    st.write("Type of 'y':", type(y_column))
+    st.write("Unique values in 'y':", y_column.unique())
 else:
     st.error("Error: 'y' is not a Pandas Series.")
     st.stop()
@@ -79,7 +80,7 @@ else:
 # Ensure 'y' is numeric and check for NaN values
 try:
     # Check if 'y' is empty
-    if df_train['y'].empty:
+    if y_column.empty:
         st.error("Error: 'y' column is empty.")
         st.stop()
 
