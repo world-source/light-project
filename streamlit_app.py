@@ -40,6 +40,9 @@ data_load_state = st.text('Loading data...')
 data = load_data(selected_stock)
 data_load_state.text('Loading data... done!')
 
+# Convert the Date column to a timezone-naive format
+data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)
+
 st.subheader('Raw data')
 st.write(data.tail())
 
