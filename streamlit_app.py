@@ -8,6 +8,7 @@ from prophet.plot import plot_plotly
 from plotly import graph_objs as go
 import warnings
 warnings.simplefilter("ignore", category=FutureWarning)
+import pandas as pd
 
 import streamlit.web.bootstrap
 
