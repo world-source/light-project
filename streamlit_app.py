@@ -60,9 +60,25 @@ df_train = data[['Date', 'Close']]
 # Rename columns
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
 
-# Ensure 'y' is numeric and check for NaN values
-df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
-st.write("DataFrame after converting 'y' to numeric:")
+# Check DataFrame before conversion
+st.write("DataFrame before conversion:")
+st.write(df_train)
+
+# Check for the expected columns
+if 'y' not in df_train.columns:
+    st.error("Error: 'y' column is missing from the DataFrame.")
+    st.stop()
+
+# Ensure 'ds' is a datetime type and 'y' is numeric
+df_train['ds'] = pd.to_datetime(df_train['ds'], errors='coerce')  # Ensure ds is datetime
+df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
+
+# Check for NaN values in 'y'
+if df_train['y'].isnull().any():
+    st.warning("Warning: There are NaN values in the 'y' column after conversion.")
+
+# Display the DataFrame after conversion
+st.write("DataFrame after conversion:")
 st.write(df_train)
 
 # Drop rows with NaN values in 'y'
