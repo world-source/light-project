@@ -67,6 +67,11 @@ st.write("Type of 'y':", type(df_train['y']))
 
 # Ensure 'y' is numeric and check for NaN values
 try:
+    # Check if 'y' is empty
+    if df_train['y'].empty:
+        st.error("Error: 'y' column is empty.")
+        st.stop()
+
     df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
 except Exception as e:
     st.error(f"Error during conversion: {e}")
