@@ -30,7 +30,7 @@ selected_stock = st.selectbox('Select dataset for prediction', stocks)
 n_years = st.slider('Years of prediction:', 1, 4)
 period = n_years * 365
 
-@st.cache
+@st.cache_data
 def load_data(ticker):
     data = yf.download(ticker, START, TODAY)
     data.reset_index(inplace=True)
@@ -40,57 +40,41 @@ data_load_state = st.text('Loading data...')
 data = load_data(selected_stock)
 data_load_state.text('Loading data... done!')
 
-# Ensure the Date column is timezone-naive and properly formatted
-data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)  # Convert to naive
+# Convert the Date column to a timezone-naive format
+data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)
 
 st.subheader('Raw data')
 st.write(data.tail())
 
 # Prepare the training DataFrame for Prophet
-df_train = data[['Date', 'Close']]
+df_train = data[['Date', 'Close']].rename(columns={"Date": "ds", "Close": "y"})
 
-# Rename columns
-df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
-
-# Check DataFrame structure after renaming
-st.write("DataFrame after renaming columns:")
+# Check DataFrame structure
+st.write("DataFrame before conversion:")
 st.write(df_train)
-
-# Check types of the DataFrame
-st.write("DataFrame dtypes after renaming:")
+st.write("DataFrame dtypes:")
 st.write(df_train.dtypes)
 
-# Check if 'y' column is present
+# Check if 'y' column is present and check its type
 if 'y' not in df_train.columns:
     st.error("Error: 'y' column is missing from the DataFrame.")
     st.stop()
 
-# Inspect 'y' column to ensure it's a Series
-y_column = df_train['y']
-if isinstance(y_column, pd.Series):
-    # Check the unique values in 'y'
-    st.write("Contents of 'y' before conversion:")
-    st.write(y_column.head())
-    st.write("Type of 'y':", type(y_column))
-    st.write("Unique values in 'y':", y_column.unique())
-else:
-    st.error("Error: 'y' is not a Pandas Series.")
-    st.stop()
+# Check the type and contents of 'y'
+st.write("Contents of 'y' before conversion:")
+st.write(df_train['y'].head())
 
 # Ensure 'y' is numeric and check for NaN values
 try:
     # Check if 'y' is empty
-    if y_column.empty:
+    if df_train['y'].empty:
         st.error("Error: 'y' column is empty.")
         st.stop()
 
     # Convert 'y' to numeric and handle errors
     df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
-
-    # After conversion, check for NaN values
     st.write("Converted 'y' to numeric:")
     st.write(df_train['y'].head())
-    st.write("NaN values in 'y':", df_train['y'].isna().sum())
 except Exception as e:
     st.error(f"Error during conversion: {e}")
     st.stop()
