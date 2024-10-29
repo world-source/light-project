@@ -60,7 +60,7 @@ plot_raw_data()
 # Predict forecast with Prophet.
 df_train = data[['Date','Close']]
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
-
+print(df_train.columns)
 m = Prophet()
 m.fit(df_train)
 future = m.make_future_dataframe(periods=period)
