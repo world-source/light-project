@@ -8,7 +8,9 @@ from prophet.plot import plot_plotly
 from plotly import graph_objs as go
 import warnings
 warnings.simplefilter("ignore", category=FutureWarning)
-import pandas as pd
+
+
+import streamlit.web.bootstrap
 
 st.set_page_config(
     page_title="Light Project",
@@ -25,11 +27,13 @@ TODAY = date.today().strftime("%Y-%m-%d")
 
 st.markdown("<h1 style='text-align: center; color: black;'>The light ahead.</h1>", unsafe_allow_html=True)
 
+
 stocks = ('GOOG', 'AAPL', 'MSFT', 'GME', 'TSLA', 'NVDA', 'INTC', 'AMZN', 'EBAY', 'AAL', 'AMD', 'NFLX', 'PEP', 'ADBE', 'META', 'TXN', 'ABNB', 'PYPL', 'LYFT')
 selected_stock = st.selectbox('Select dataset for prediction', stocks)
 
 n_years = st.slider('Years of prediction:', 1, 4)
 period = n_years * 365
+
 
 @st.cache
 def load_data(ticker):
@@ -46,56 +50,18 @@ st.write(data.tail())
 
 # Plot raw data
 def plot_raw_data():
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
-    fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
-    fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig)
-
+	fig = go.Figure()
+	fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
+	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
+	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+	st.plotly_chart(fig)
+	
 plot_raw_data()
 
-# Prepare the training DataFrame for Prophet
-df_train = data[['Date', 'Close']].copy()
-
-# Verify if 'Close' column exists
-if 'Close' not in df_train.columns:
-    st.error("Error: The 'Close' column is not found in the dataset.")
-    st.stop()
-
-# Rename columns and display the updated DataFrame
+# Predict forecast with Prophet.
+df_train = data[['Date','Close']]
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
-st.write("DataFrame after renaming columns:")
-st.write(df_train)
 
-# Check the type of 'y'
-st.write("Type of 'y':", type(df_train['y']))
-
-# Ensure 'y' is a Series
-if not isinstance(df_train['y'], pd.Series):
-    st.error("Error: Column 'y' is not a Series.")
-    st.stop()
-
-# Convert 'y' to numeric values, coercing errors
-df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
-st.write("DataFrame after converting 'y' to numeric:")
-st.write(df_train)
-
-# Display the number of NaN values in 'y' after conversion
-st.write("Number of NaN values in 'y' after conversion:", df_train['y'].isna().sum())
-
-# Drop rows with NaN values in 'y'
-df_train = df_train.dropna(subset=['y'])
-
-# Ensure that there are enough rows to fit the model
-if df_train.shape[0] < 2:
-    st.error("Error: Not enough valid rows after cleaning the data.")
-    st.stop()
-
-# Print columns and shape of df_train for verification
-st.write("Columns in training data:", df_train.columns)
-st.write("Shape of training data:", df_train.shape)
-
-# Train the Prophet model
 m = Prophet()
 m.fit(df_train)
 future = m.make_future_dataframe(periods=period)
@@ -104,7 +70,7 @@ forecast = m.predict(future)
 # Show and plot forecast
 st.subheader('Forecast data')
 st.write(forecast.tail())
-
+    
 st.write(f'Forecast plot for {n_years} years')
 fig1 = plot_plotly(m, forecast)
 st.plotly_chart(fig1)
