@@ -40,8 +40,8 @@ data_load_state = st.text('Loading data...')
 data = load_data(selected_stock)
 data_load_state.text('Loading data... done!')
 
-# Convert the Date column to a timezone-naive format
-data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)
+# Ensure the Date column is timezone-naive and properly formatted
+data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)  # Convert to naive
 
 st.subheader('Raw data')
 st.write(data.tail())
@@ -63,37 +63,21 @@ if 'y' not in df_train.columns:
     st.error("Error: 'y' column is missing from the DataFrame.")
     st.stop()
 
-# Check the type and contents of 'y'
-st.write("Contents of 'y' before conversion:")
-st.write(df_train['y'].head())
-st.write("Type of 'y':", type(df_train['y']))
-
 # Ensure 'y' is numeric and check for NaN values
 try:
-    # Check if 'y' is empty
-    if df_train['y'].empty:
-        st.error("Error: 'y' column is empty.")
-        st.stop()
-
     # Convert 'y' to numeric and handle errors
     df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
-    st.write("Converted 'y' to numeric:")
-    st.write(df_train['y'].head())
+
+    # Drop rows with NaN values in 'y'
+    df_train = df_train.dropna(subset=['y'])
+
+    # Check if df_train has enough data
+    if df_train.shape[0] < 2:
+        st.error("Error: Not enough valid rows after cleaning the data.")
+        st.stop()
+
 except Exception as e:
     st.error(f"Error during conversion: {e}")
-    st.stop()
-
-# Drop rows with NaN values in 'y'
-df_train = df_train.dropna(subset=['y'])
-
-# Check if df_train has enough data
-if df_train.shape[0] < 2:
-    st.error("Error: Not enough valid rows after cleaning the data.")
-    st.stop()
-
-# Verify 'y' is a Series
-if not isinstance(df_train['y'], pd.Series):
-    st.error("Error: Column 'y' is not a Series.")
     st.stop()
 
 # Fit the Prophet model
