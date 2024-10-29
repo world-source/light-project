@@ -27,13 +27,11 @@ TODAY = date.today().strftime("%Y-%m-%d")
 
 st.markdown("<h1 style='text-align: center; color: black;'>The light ahead.</h1>", unsafe_allow_html=True)
 
-
 stocks = ('GOOG', 'AAPL', 'MSFT', 'GME', 'TSLA', 'NVDA', 'INTC', 'AMZN', 'EBAY', 'AAL', 'AMD', 'NFLX', 'PEP', 'ADBE', 'META', 'TXN', 'ABNB', 'PYPL', 'LYFT')
 selected_stock = st.selectbox('Select dataset for prediction', stocks)
 
 n_years = st.slider('Years of prediction:', 1, 4)
 period = n_years * 365
-
 
 @st.cache
 def load_data(ticker):
@@ -50,16 +48,17 @@ st.write(data.tail())
 
 # Plot raw data
 def plot_raw_data():
-	fig = go.Figure()
-	fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
-	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
-	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-	st.plotly_chart(fig)
-	
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
+    fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
+    fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+    st.plotly_chart(fig)
+    
 plot_raw_data()
 
 # Predict forecast with Prophet.
-df_train = data[['Date','Close']]
+df_train = data[['Date', 'Close']].copy()
+
 # Verify if 'Close' column exists
 if 'Close' not in df_train.columns:
     st.error("Error: The 'Close' column is not found in the dataset.")
@@ -67,15 +66,21 @@ if 'Close' not in df_train.columns:
 
 # Rename columns and clean data
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
+
 # Check if 'ds' and 'y' columns exist after renaming
 if 'ds' not in df_train.columns or 'y' not in df_train.columns:
     st.error("Error: Renaming columns failed.")
     st.stop()
 
-# Check if 'y' has NaN values or non-numeric entries
+# Convert 'y' to numeric values, coercing errors, and ensure it's a valid Series
+if not isinstance(df_train['y'], pd.Series):
+    st.error("Error: Column 'y' is not a Series.")
+    st.stop()
+
 df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
-print("Data after converting 'y' to numeric:")
-print(df_train.head())
+
+# Print the first few rows of df_train for verification
+st.write("Data after converting 'y' to numeric:", df_train.head())
 
 # Drop rows with NaN values in 'y'
 df_train = df_train.dropna(subset=['y'])
@@ -85,10 +90,8 @@ if df_train.shape[0] < 2:
     st.error("Error: Not enough valid rows after cleaning the data.")
     st.stop()
 
-print("Data after dropping NaN values in 'y':")
-print(df_train.head())
-
-print(df_train.columns)
+# Print columns of df_train for verification
+st.write("Columns in training data:", df_train.columns)
 m = Prophet()
 m.fit(df_train)
 future = m.make_future_dataframe(periods=period)
