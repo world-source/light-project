@@ -9,9 +9,6 @@ from plotly import graph_objs as go
 import warnings
 warnings.simplefilter("ignore", category=FutureWarning)
 
-
-import streamlit.web.bootstrap
-
 st.set_page_config(
     page_title="Light Project",
     page_icon="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdbM0Bqr7Q7mCAouhY1p_x_poXPrxinl9a7Q&s",
@@ -27,13 +24,11 @@ TODAY = date.today().strftime("%Y-%m-%d")
 
 st.markdown("<h1 style='text-align: center; color: black;'>The light ahead.</h1>", unsafe_allow_html=True)
 
-
 stocks = ('GOOG', 'AAPL', 'MSFT', 'GME', 'TSLA', 'NVDA', 'INTC', 'AMZN', 'EBAY', 'AAL', 'AMD', 'NFLX', 'PEP', 'ADBE', 'META', 'TXN', 'ABNB', 'PYPL', 'LYFT')
 selected_stock = st.selectbox('Select dataset for prediction', stocks)
 
 n_years = st.slider('Years of prediction:', 1, 4)
 period = n_years * 365
-
 
 @st.cache
 def load_data(ticker):
@@ -50,20 +45,43 @@ st.write(data.tail())
 
 # Plot raw data
 def plot_raw_data():
-	fig = go.Figure()
-	fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
-	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
-	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-	st.plotly_chart(fig)
-	
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
+    fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
+    fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+    st.plotly_chart(fig)
+
 plot_raw_data()
 
-# Predict forecast with Prophet.
-df_train = data[['Date','Close']]
+# Prepare the training DataFrame for Prophet
+df_train = data[['Date', 'Close']]
+
+# Rename columns
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
 
+# Ensure 'y' is numeric and check for NaN values
+df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
+st.write("DataFrame after converting 'y' to numeric:")
+st.write(df_train)
+
+# Drop rows with NaN values in 'y'
+df_train = df_train.dropna(subset=['y'])
+
+# Check if df_train has enough data
+if df_train.shape[0] < 2:
+    st.error("Error: Not enough valid rows after cleaning the data.")
+    st.stop()
+
+# Verify 'y' is a Series
+if not isinstance(df_train['y'], pd.Series):
+    st.error("Error: Column 'y' is not a Series.")
+    st.stop()
+
+# Fit the Prophet model
 m = Prophet()
 m.fit(df_train)
+
+# Create future dataframe and make predictions
 future = m.make_future_dataframe(periods=period)
 forecast = m.predict(future)
 
