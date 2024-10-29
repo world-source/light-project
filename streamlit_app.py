@@ -55,6 +55,8 @@ df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
 # Check DataFrame structure
 st.write("DataFrame before conversion:")
 st.write(df_train)
+st.write("DataFrame dtypes:")
+st.write(df_train.dtypes)
 
 # Check if 'y' column is present and check its type
 if 'y' not in df_train.columns:
@@ -63,7 +65,7 @@ if 'y' not in df_train.columns:
 
 # Check the type and contents of 'y'
 st.write("Contents of 'y' before conversion:")
-st.write(df_train['y'])
+st.write(df_train['y'].head())
 st.write("Type of 'y':", type(df_train['y']))
 
 # Ensure 'y' is numeric and check for NaN values
@@ -76,7 +78,7 @@ try:
     # Convert 'y' to numeric and handle errors
     df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
     st.write("Converted 'y' to numeric:")
-    st.write(df_train['y'])
+    st.write(df_train['y'].head())
 except Exception as e:
     st.error(f"Error during conversion: {e}")
     st.stop()
