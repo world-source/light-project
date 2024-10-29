@@ -10,8 +10,6 @@ import warnings
 warnings.simplefilter("ignore", category=FutureWarning)
 import pandas as pd
 
-import streamlit.web.bootstrap
-
 st.set_page_config(
     page_title="Light Project",
     page_icon="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdbM0Bqr7Q7mCAouhY1p_x_poXPrxinl9a7Q&s",
@@ -67,18 +65,19 @@ if 'Close' not in df_train.columns:
 # Rename columns and clean data
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
 
+# Check what df_train looks like after renaming
+st.write("DataFrame after renaming columns:")
+st.write(df_train)
+
 # Check if 'ds' and 'y' columns exist after renaming
 if 'ds' not in df_train.columns or 'y' not in df_train.columns:
     st.error("Error: Renaming columns failed.")
     st.stop()
 
-# Ensure 'y' is a Series
+# Check if 'y' is a Series
 if not isinstance(df_train['y'], pd.Series):
     st.error("Error: Column 'y' is not a Series.")
     st.stop()
-
-# Check if 'ds' and 'y' contain the expected types and values
-st.write("Data types in training data:", df_train.dtypes)
 
 # Convert 'y' to numeric values, coercing errors
 df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
