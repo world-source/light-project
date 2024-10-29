@@ -54,35 +54,39 @@ st.write(df_train)
 st.write("DataFrame dtypes:")
 st.write(df_train.dtypes)
 
-# Check the type and contents of 'y'
+# Ensure the 'y' column exists and is of a suitable type
 if 'y' not in df_train.columns:
     st.error("Error: 'y' column is missing from the DataFrame.")
     st.stop()
 
+# Inspect the contents and type of the 'y' column
 st.write("Contents of 'y' before conversion:")
 st.write(df_train['y'].head())
+st.write(f"'y' type: {type(df_train['y'])}")
+
+# Check for any potential issues with the 'y' data
+st.write("Checking for NaN values in 'y':")
+nan_count = df_train['y'].isna().sum()
+st.write(f"NaN count in 'y': {nan_count}")
 
 # Ensure 'y' is numeric and check for NaN values
 try:
-    # Check if 'y' is empty
-    if df_train['y'].empty:
-        st.error("Error: 'y' column is empty.")
-        st.stop()
-
-    # Convert 'y' to numeric using .astype(float) to ensure it's a Series
-    df_train['y'] = df_train['y'].astype(float)
-
-    # Alternatively, if the above fails, use pd.to_numeric with .values
-    # df_train['y'] = pd.to_numeric(df_train['y'].values, errors='coerce') 
-
+    # Convert 'y' to numeric
+    df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
     st.write("Converted 'y' to numeric:")
     st.write(df_train['y'].head())
+    
+    # Check if any values were converted to NaN
+    nan_count_after_conversion = df_train['y'].isna().sum()
+    st.write(f"NaN count in 'y' after conversion: {nan_count_after_conversion}")
 except Exception as e:
     st.error(f"Error during conversion: {e}")
     st.stop()
 
 # Drop rows with NaN values in 'y'
 df_train = df_train.dropna(subset=['y'])
+st.write("DataFrame after dropping NaN values:")
+st.write(df_train)
 
 # Check if df_train has enough data
 if df_train.shape[0] < 2:
@@ -90,10 +94,12 @@ if df_train.shape[0] < 2:
     st.stop()
 
 # Fit the Prophet model
+st.write("Fitting the Prophet model...")
 m = Prophet()
 m.fit(df_train)
 
 # Create future dataframe and make predictions
+st.write("Creating future dataframe and making predictions...")
 future = m.make_future_dataframe(periods=period)
 forecast = m.predict(future)
 
