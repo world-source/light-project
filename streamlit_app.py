@@ -65,14 +65,27 @@ if 'Close' not in df_train.columns:
     st.stop()
 
 # Rename columns and clean data
-df_train = df_train.rename(columns={"Date": "ds", "Close": "y"}).dropna(subset=['y'])
+df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
+# Check if 'ds' and 'y' columns exist after renaming
+if 'ds' not in df_train.columns or 'y' not in df_train.columns:
+    st.error("Error: Renaming columns failed.")
+    st.stop()
+
+# Check if 'y' has NaN values or non-numeric entries
 df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
+print("Data after converting 'y' to numeric:")
+print(df_train.head())
+
+# Drop rows with NaN values in 'y'
 df_train = df_train.dropna(subset=['y'])
 
-# Confirm renaming was successful
-if 'y' not in df_train.columns:
-    st.error("Error: The 'y' column is missing after renaming.")
+# Ensure that there are enough rows to fit the model
+if df_train.shape[0] < 2:
+    st.error("Error: Not enough valid rows after cleaning the data.")
     st.stop()
+
+print("Data after dropping NaN values in 'y':")
+print(df_train.head())
 
 print(df_train.columns)
 m = Prophet()
