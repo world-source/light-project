@@ -53,7 +53,7 @@ def plot_raw_data():
     fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
     fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
     st.plotly_chart(fig)
-    
+
 plot_raw_data()
 
 # Predict forecast with Prophet.
@@ -72,15 +72,19 @@ if 'ds' not in df_train.columns or 'y' not in df_train.columns:
     st.error("Error: Renaming columns failed.")
     st.stop()
 
-# Convert 'y' to numeric values, coercing errors, and ensure it's a valid Series
+# Ensure 'y' is a Series
 if not isinstance(df_train['y'], pd.Series):
     st.error("Error: Column 'y' is not a Series.")
     st.stop()
 
+# Check if 'ds' and 'y' contain the expected types and values
+st.write("Data types in training data:", df_train.dtypes)
+
+# Convert 'y' to numeric values, coercing errors
 df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
 
-# Print the first few rows of df_train for verification
-st.write("Data after converting 'y' to numeric:", df_train.head())
+# Check for NaN values in 'y'
+st.write("Number of NaN values in 'y':", df_train['y'].isna().sum())
 
 # Drop rows with NaN values in 'y'
 df_train = df_train.dropna(subset=['y'])
@@ -100,7 +104,7 @@ forecast = m.predict(future)
 # Show and plot forecast
 st.subheader('Forecast data')
 st.write(forecast.tail())
-    
+
 st.write(f'Forecast plot for {n_years} years')
 fig1 = plot_plotly(m, forecast)
 st.plotly_chart(fig1)
