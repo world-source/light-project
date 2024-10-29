@@ -59,7 +59,21 @@ plot_raw_data()
 
 # Predict forecast with Prophet.
 df_train = data[['Date','Close']]
-df_train = df_train.rename(columns={"Date": "ds", "Close": "y"}).dropna(subset=['y']); df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce'); df_train = df_train.dropna(subset=['y'])
+# Verify if 'Close' column exists
+if 'Close' not in df_train.columns:
+    st.error("Error: The 'Close' column is not found in the dataset.")
+    st.stop()
+
+# Rename columns and clean data
+df_train = df_train.rename(columns={"Date": "ds", "Close": "y"}).dropna(subset=['y'])
+df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
+df_train = df_train.dropna(subset=['y'])
+
+# Confirm renaming was successful
+if 'y' not in df_train.columns:
+    st.error("Error: The 'y' column is missing after renaming.")
+    st.stop()
+
 print(df_train.columns)
 m = Prophet()
 m.fit(df_train)
