@@ -69,9 +69,20 @@ if 'y' not in df_train.columns:
     st.error("Error: 'y' column is missing from the DataFrame.")
     st.stop()
 
+# Check the type of 'y' and its contents
+st.write("Contents of 'y' before conversion:")
+st.write(df_train['y'])
+st.write("Type of 'y':", type(df_train['y']))
+
 # Ensure 'ds' is a datetime type and 'y' is numeric
 df_train['ds'] = pd.to_datetime(df_train['ds'], errors='coerce')  # Ensure ds is datetime
-df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
+
+# Check if 'y' is a list or array-like before conversion
+if isinstance(df_train['y'], (pd.Series, list, np.ndarray)):
+    df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
+else:
+    st.error("Error: 'y' is not a valid list, Series, or array-like.")
+    st.stop()
 
 # Check for NaN values in 'y'
 if df_train['y'].isnull().any():
