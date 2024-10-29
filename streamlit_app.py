@@ -67,7 +67,14 @@ if 'y' not in df_train.columns:
 st.write("Contents of 'y' before conversion:")
 st.write(df_train['y'].head())
 st.write("Type of 'y':", type(df_train['y']))
-st.write("Unique values in 'y':", df_train['y'].unique())
+
+# Check if 'y' is a Series
+if isinstance(df_train['y'], pd.Series):
+    # Check the unique values in 'y'
+    st.write("Unique values in 'y':", df_train['y'].unique())
+else:
+    st.error("Error: 'y' is not a Pandas Series.")
+    st.stop()
 
 # Ensure 'y' is numeric and check for NaN values
 try:
