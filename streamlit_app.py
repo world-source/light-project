@@ -54,12 +54,11 @@ st.write(df_train)
 st.write("DataFrame dtypes:")
 st.write(df_train.dtypes)
 
-# Ensure 'y' is a Pandas Series
-if 'y' not in df_train.columns or not isinstance(df_train['y'], pd.Series):
-    st.error("Error: 'y' column is missing or is not a Pandas Series.")
+# Check the type and contents of 'y'
+if 'y' not in df_train.columns:
+    st.error("Error: 'y' column is missing from the DataFrame.")
     st.stop()
 
-# Check the type and contents of 'y'
 st.write("Contents of 'y' before conversion:")
 st.write(df_train['y'].head())
 
@@ -70,8 +69,12 @@ try:
         st.error("Error: 'y' column is empty.")
         st.stop()
 
-    # Convert 'y' to numeric and handle errors
-    df_train['y'] = pd.to_numeric(df_train['y'].values, errors='coerce')  # Convert y to numeric using .values
+    # Convert 'y' to numeric using .astype(float) to ensure it's a Series
+    df_train['y'] = df_train['y'].astype(float)
+
+    # Alternatively, if the above fails, use pd.to_numeric with .values
+    # df_train['y'] = pd.to_numeric(df_train['y'].values, errors='coerce') 
+
     st.write("Converted 'y' to numeric:")
     st.write(df_train['y'].head())
 except Exception as e:
