@@ -54,7 +54,7 @@ def plot_raw_data():
 
 plot_raw_data()
 
-# Predict forecast with Prophet.
+# Prepare the training DataFrame for Prophet
 df_train = data[['Date', 'Close']].copy()
 
 # Verify if 'Close' column exists
@@ -62,27 +62,23 @@ if 'Close' not in df_train.columns:
     st.error("Error: The 'Close' column is not found in the dataset.")
     st.stop()
 
-# Rename columns and clean data
+# Rename columns and display the updated DataFrame
 df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
-
-# Display the structure and data types of df_train
 st.write("DataFrame after renaming columns:")
 st.write(df_train)
-st.write("Data types of each column:")
-st.write(df_train.dtypes)
 
-# Check if 'ds' and 'y' columns exist after renaming
-if 'ds' not in df_train.columns or 'y' not in df_train.columns:
-    st.error("Error: Renaming columns failed.")
-    st.stop()
+# Check the type of 'y'
+st.write("Type of 'y':", type(df_train['y']))
 
-# Check if 'y' is a Series
+# Ensure 'y' is a Series
 if not isinstance(df_train['y'], pd.Series):
     st.error("Error: Column 'y' is not a Series.")
     st.stop()
 
 # Convert 'y' to numeric values, coercing errors
 df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')
+st.write("DataFrame after converting 'y' to numeric:")
+st.write(df_train)
 
 # Display the number of NaN values in 'y' after conversion
 st.write("Number of NaN values in 'y' after conversion:", df_train['y'].isna().sum())
@@ -99,6 +95,7 @@ if df_train.shape[0] < 2:
 st.write("Columns in training data:", df_train.columns)
 st.write("Shape of training data:", df_train.shape)
 
+# Train the Prophet model
 m = Prophet()
 m.fit(df_train)
 future = m.make_future_dataframe(periods=period)
