@@ -8,7 +8,7 @@ from prophet.plot import plot_plotly
 from plotly import graph_objs as go
 import warnings
 warnings.simplefilter("ignore", category=FutureWarning)
-
+df = df.apply( pd.to_numeric, errors='coerce' )
 
 import streamlit.web.bootstrap
 
