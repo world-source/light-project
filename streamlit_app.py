@@ -55,8 +55,6 @@ df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
 # Check DataFrame structure
 st.write("DataFrame before conversion:")
 st.write(df_train)
-st.write("Data types of DataFrame columns:")
-st.write(df_train.dtypes)
 
 # Check if 'y' column is present and check its type
 if 'y' not in df_train.columns:
@@ -75,7 +73,10 @@ try:
         st.error("Error: 'y' column is empty.")
         st.stop()
 
+    # Convert 'y' to numeric and handle errors
     df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
+    st.write("Converted 'y' to numeric:")
+    st.write(df_train['y'])
 except Exception as e:
     st.error(f"Error during conversion: {e}")
     st.stop()
