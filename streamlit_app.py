@@ -1,12 +1,16 @@
 import streamlit as st 
 from datetime import date
 import numpy as np
-import pandas as pd  
+np.float_ = np.float64
 import yfinance as yf 
 from prophet import Prophet
 from prophet.plot import plot_plotly
+from plotly import graph_objs as go
 import warnings
 warnings.simplefilter("ignore", category=FutureWarning)
+
+
+import streamlit.web.bootstrap
 
 st.set_page_config(
     page_title="Light Project",
@@ -23,13 +27,15 @@ TODAY = date.today().strftime("%Y-%m-%d")
 
 st.markdown("<h1 style='text-align: center; color: black;'>The light ahead.</h1>", unsafe_allow_html=True)
 
+
 stocks = ('GOOG', 'AAPL', 'MSFT', 'GME', 'TSLA', 'NVDA', 'INTC', 'AMZN', 'EBAY', 'AAL', 'AMD', 'NFLX', 'PEP', 'ADBE', 'META', 'TXN', 'ABNB', 'PYPL', 'LYFT')
 selected_stock = st.selectbox('Select dataset for prediction', stocks)
 
 n_years = st.slider('Years of prediction:', 1, 4)
 period = n_years * 365
 
-@st.cache_data
+
+@st.cache
 def load_data(ticker):
     data = yf.download(ticker, START, TODAY)
     data.reset_index(inplace=True)
@@ -39,67 +45,25 @@ data_load_state = st.text('Loading data...')
 data = load_data(selected_stock)
 data_load_state.text('Loading data... done!')
 
-# Convert the Date column to a timezone-naive format
-data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)
-
 st.subheader('Raw data')
 st.write(data.tail())
 
-# Prepare the training DataFrame for Prophet
-df_train = data[['Date', 'Close']].rename(columns={"Date": "ds", "Close": "y"})
+# Plot raw data
+def plot_raw_data():
+	fig = go.Figure()
+	fig.add_trace(go.Scatter(x=data['Date'], y=data['Open'], name="stock_open"))
+	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="stock_close"))
+	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+	st.plotly_chart(fig)
+	
+plot_raw_data()
 
-# Check DataFrame structure before conversion
-st.write("DataFrame before conversion:")
-st.write(df_train)
-st.write("DataFrame dtypes:")
-st.write(df_train.dtypes)
+# Predict forecast with Prophet.
+df_train = data[['Date','Close']]
+df_train = df_train.rename(columns={"Date": "ds", "Close": "y"})
 
-# Ensure the 'y' column exists and is of a suitable type
-if 'y' not in df_train.columns:
-    st.error("Error: 'y' column is missing from the DataFrame.")
-    st.stop()
-
-# Inspect the contents and type of the 'y' column
-st.write("Contents of 'y' before conversion:")
-st.write(df_train['y'].head())
-st.write(f"'y' type: {type(df_train['y'])}")
-
-# Check for any potential issues with the 'y' data
-st.write("Checking for NaN values in 'y':")
-nan_count = df_train['y'].isna().sum()
-st.write(f"NaN count in 'y': {nan_count}")
-
-# Ensure 'y' is numeric and check for NaN values
-try:
-    # Convert 'y' to numeric
-    df_train['y'] = pd.to_numeric(df_train['y'], errors='coerce')  # Convert y to numeric
-    st.write("Converted 'y' to numeric:")
-    st.write(df_train['y'].head())
-    
-    # Check if any values were converted to NaN
-    nan_count_after_conversion = df_train['y'].isna().sum()
-    st.write(f"NaN count in 'y' after conversion: {nan_count_after_conversion}")
-except Exception as e:
-    st.error(f"Error during conversion: {e}")
-    st.stop()
-
-# Drop rows with NaN values in 'y'
-df_train = df_train.dropna(subset=['y'])
-st.write("DataFrame after dropping NaN values:")
-st.write(df_train)
-
-# Check if df_train has enough data
-if df_train.shape[0] < 2:
-    st.error("Error: Not enough valid rows after cleaning the data.")
-    st.stop()
-
-# Fit the Prophet model
-st.write("Fitting the Prophet model...")
 m = Prophet()
 m.fit(df_train)
-
-# Create future dataframe and make predictions
-st.write("Creating future dataframe and making predictions...")
 future = m.make_future_dataframe(periods=period)
 forecast = m.predict(future)
 
